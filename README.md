@@ -34,3 +34,15 @@ During the self-checking random testbench phase, the scoreboard reported reads e
 Diagnosis: the mismatch pattern showed the same got/expected pair printed twice in a row on consecutive read cycles- a strong signal that the reference model and the DUT had briefly disagreed about whether a given clock edge counted as a real read. The root cause was a zero-delay race condition: stimulus was assigned immediately after @(posedge clk) with a blocking assignment, at the exact same simulation time step as the DUT's internal logic and the scoreboard's own clocked blocks. Verilog does not guarantee evaluation order between blocks triggered by the same edge, so some edges had the DUT sampling the old enable value while the reference model sampled the new one (or vice versa).
 
 Adding a 1-time-unit delay ensures the new stimulus value only becomes visible after the current edge has been fully processed by every block triggered by it, removing the ambiguity entirely. After this fix, the testbench passed cleanly with zero mismatches across repeated runs.
+
+#Synthesis
+
+The design was synthesized using Yosys.
+
+Observations
+RTL successfully parsed and elaborated.
+Dual-port RAM was inferred as a memory block.
+Gray counters synthesized into sequential logic.
+Synchronizers mapped into D flip-flops with asynchronous reset.
+No unsynthesizable constructs were present.
+ABC technology mapping terminated due to an EDA Playground environment issue, after successful RTL synthesis.
